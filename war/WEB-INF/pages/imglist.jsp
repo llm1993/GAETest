@@ -5,7 +5,7 @@
 <body>
 	<h1>GAE + Spring 3 MVC REST + CRUD Example with JDO</h1>
 
-	Function : <a href="/">Add Files</a>
+	Function : <a href="/addimg">Add Files</a>
 	<hr />
 
 	<h2>All Files</h2>

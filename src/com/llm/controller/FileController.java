@@ -65,7 +65,10 @@ public class FileController {
 		}
 
 	}
-
+	@RequestMapping(value = "/addimg", method = RequestMethod.GET)
+	public String addimg() {
+		return "addimg";
+	}
 	@RequestMapping(value = "/imglist", method = RequestMethod.GET)
 	public String list(ModelMap model) {
 
@@ -109,6 +112,5 @@ public class FileController {
 
 		// return to list
 		return new ModelAndView("redirect:../imglist");
-
 	}
 }
