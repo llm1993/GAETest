@@ -8,6 +8,7 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.Text;
 
 @PersistenceCapable
 public class Blog {
@@ -23,7 +24,19 @@ public class Blog {
 	private String title;
 
 	@Persistent
-	private String content;
+	private String category;
+
+	@Persistent
+	private String author;
+
+	@Persistent
+	private String description;
+
+	@Persistent
+	private Text content;
+
+	@Persistent
+	private Integer count = 0;
 
 	public Key getKey() {
 		return key;
@@ -45,15 +58,53 @@ public class Blog {
 		return title;
 	}
 
+	public String getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(String author) {
+		this.author = author;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
 	public void setTitle(String title) {
 		this.title = title;
 	}
 
-	public String getContent() {
+	public Text getContent() {
 		return content;
 	}
 
-	public void setContent(String content) {
+	public void setContent(Text content) {
 		this.content = content;
 	}
+
+	@Override
+	public String toString() {
+		return content.getValue();
+	}
+
+	public Integer getCount() {
+		return count;
+	}
+
+	public void setCount(Integer count) {
+		this.count = count;
+	}
+
 }

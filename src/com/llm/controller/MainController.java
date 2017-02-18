@@ -1,67 +1,128 @@
 package com.llm.controller;
 
-import java.util.Date;
 import java.util.List;
 
-import javax.jdo.PersistenceManager;
-import javax.jdo.Query;
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.google.appengine.api.datastore.Text;
 import com.llm.domain.Blog;
-import com.llm.domain.Customer;
-import com.llm.utils.PMF;
+import com.llm.domain.BlogPage;
+import com.llm.service.BlogService;
 
 @Controller
 @RequestMapping("/")
 public class MainController {
-	
-	@RequestMapping("/main")
-	public String main(ModelMap model){
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		Query q = pm.newQuery(Blog.class);
-		q.setOrdering("date desc");
 
-		List<Blog> results = null;
+	@Resource
+	private BlogService blogService;
 
-		try {
-			results = (List<Blog>) q.execute();
-
-			if (results.isEmpty()) {
-				model.addAttribute("blogList", null);
-			} else {
-				model.addAttribute("blogList", results);
-			}
-
-		} finally {
-			q.closeAll();
-			pm.close();
+	@RequestMapping("/")
+	public String main(HttpServletRequest request,ModelMap model) {
+		BlogPage blogPage = blogService.getBlogPage(request,model);
+		List<Blog> recentList = blogService.getRecentList();
+		if (recentList.isEmpty()) {
+			model.addAttribute("recentList", null);
+		} else {
+			model.addAttribute("recentList", recentList);
 		}
-
+		if (blogPage==null||blogPage.getList().isEmpty()) {
+			model.addAttribute("pagebean", null);
+		} else {
+			model.addAttribute("pagebean", blogPage);
+		}
 		return "main";
 	}
-	@RequestMapping("/preaddblog")
-	public String pre_addblog(){
+
+	@RequestMapping("/blog")
+	public String blog(HttpServletRequest request,ModelMap model) {
+		BlogPage blogPage = blogService.getBlogPage(request,model);
+		if (blogPage.getList().isEmpty()) {
+			model.addAttribute("pagebean", null);
+		} else {
+			model.addAttribute("pagebean", blogPage);
+		}
+		return "blog";
+	}
+
+	@RequestMapping("/about")
+	public String about() {
+		return "about";
+	}
+
+	@RequestMapping("/contact")
+	public String contact() {
+
+		return "contact";
+	}
+
+	@RequestMapping(value = "/content/{key}", method = RequestMethod.GET)
+	public String content(@PathVariable String key, ModelMap model) {
+		Blog blog = blogService.getBlogByKey(key);
+		if (blog == null)
+			model.addAttribute("blog", null);
+		else
+			model.addAttribute("blog", blog);
+		
+		List<Blog> recentList = blogService.getRecentList();
+		if (recentList.isEmpty()) {
+			model.addAttribute("recentList", null);
+		} else {
+			model.addAttribute("recentList", recentList);
+		}
+		return "content";
+	}
+
+	
+	@RequestMapping(value = "/addblog", method = RequestMethod.GET)
+	public String addblog() {
 		return "addblog";
 	}
-	@RequestMapping(value="/addblog", method = RequestMethod.POST)
-	public String addblog(HttpServletRequest request){
-		String content = request.getParameter("name");
-		System.out.println(content);
-		Blog blog = new Blog();
-		blog.setContent(content);
-		blog.setTitle("TEST");
-		blog.setDate(new Date());
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		try {
-			pm.makePersistent(blog);
-		} finally {
-			pm.close();
+	
+	@RequestMapping(value = "/update/{key}", method = RequestMethod.GET)
+	public String preupdate(@PathVariable String key, ModelMap model) {
+		Blog blog = blogService.getBlogByKey(key);
+		if (blog == null)
+			model.addAttribute("blog", null);
+		else
+			model.addAttribute("blog", blog);
+		
+		List<Blog> recentList = blogService.getRecentList();
+		if (recentList.isEmpty()) {
+			model.addAttribute("recentList", null);
+		} else {
+			model.addAttribute("recentList", recentList);
 		}
+		return "update";
+	}
+	
+	@RequestMapping(value = "/update/{key}", method = RequestMethod.POST)
+	public String update(@PathVariable String key, HttpServletRequest request, ModelMap model) {
+		Blog blog = new Blog();
+		blog.setTitle(request.getParameter("title"));
+		blog.setContent(new Text(request.getParameter("content")));
+		blog.setCategory(request.getParameter("category"));
+		blog.setDescription(request.getParameter("description"));
+		blogService.updateBlogByKey(key,blog);
+		model.addAttribute("blog", blog);
+		return "content";
+	}
+	
+	@RequestMapping(value = "/delete/{key}", method = RequestMethod.GET)
+	public String delete(@PathVariable String key) {
+		blogService.deleteBlogByKey(key);
+		return "redirect:/";
+	}
+
+	@RequestMapping(value = "/addblog", method = RequestMethod.POST)
+	public String addblog(HttpServletRequest request) {
+		blogService.addblog(request);
 		return "main";
 	}
 }
