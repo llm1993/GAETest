@@ -15,6 +15,8 @@ import com.google.appengine.api.datastore.Text;
 import com.llm.domain.Blog;
 import com.llm.domain.BlogPage;
 import com.llm.service.BlogService;
+import com.llm.utils.MailSenderInfo;
+import com.llm.utils.SimpleMailSender;
 
 @Controller
 @RequestMapping("/")
@@ -56,9 +58,32 @@ public class MainController {
 		return "about";
 	}
 
-	@RequestMapping("/contact")
+	@RequestMapping(value = "/contact", method = RequestMethod.POST)
+	public void contact(HttpServletRequest request) {
+		System.out.println(request.getParameter("name"));
+		System.out.println(request.getParameter("email"));
+		System.out.println(request.getParameter("subject"));
+		System.out.println(request.getParameter("message"));
+		
+		MailSenderInfo mailInfo = new MailSenderInfo();
+		mailInfo.setMailServerHost("smtp.163.com");
+		mailInfo.setMailServerPort("25");
+		mailInfo.setValidate(true);
+		mailInfo.setUserName("llm877626533@163.com");
+		mailInfo.setPassword("19930826");// 您的邮箱密码
+		mailInfo.setFromAddress("llm877626533@163.com");
+		mailInfo.setToAddress("877626533@qq.com");
+		mailInfo.setSubject(request.getParameter("subject"));
+		mailInfo.setContent(request.getParameter("name")+request.getParameter("email")+request.getParameter("message"));
+		// 这个类主要来发鿁邮仿
+		SimpleMailSender sms = new SimpleMailSender();
+//		for(int i=0;i<5;i++)
+		sms.sendTextMail(mailInfo);// 发鿁文体格弿
+		
+		return;
+	}
+	@RequestMapping(value = "/contact", method = RequestMethod.GET)
 	public String contact() {
-
 		return "contact";
 	}
 

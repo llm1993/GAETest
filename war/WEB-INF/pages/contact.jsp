@@ -34,13 +34,13 @@
 						<form action="#" method="post" class="contact-form">
 							<div class="row">
 								<div class="col-md-6 col-md-offset-3">
-									<input type="text" name="name" placeholder="姓名" required>
-									<input type="email" name="email" placeholder="Email" required>
-									<input type="text" name="subject" placeholder="主 题"
+									<input type="text" id ="name" name="name" placeholder="姓名" required>
+									<input type="email" id="email" name="email" placeholder="Email" required>
+									<input type="text" id="subject" name="subject" placeholder="主 题"
 										required>
-									<textarea name="message" rows="7" placeholder="留 言"
+									<textarea id="message" name="message" rows="7" placeholder="留 言"
 										required></textarea>
-									<button class="btn-send btn-5 btn-5b ion-ios-paperplane">
+									<button class="btn-send btn-5 btn-5b ion-ios-paperplane" onclick="">
 										<span>给我留言</span>
 									</button>
 								</div>
@@ -56,5 +56,18 @@
 	<jsp:include page="footer.jsp" flush="true" />
 	<jsp:include page="mobilemenu.jsp" flush="true" />
 	<script src="/js/script.js"></script>
+	<script>
+	function contact(){
+		$.post("/contact", {
+			title : $("#name").val(),
+			category : $("#email").val(),
+			content : $("#subject").val(),
+			description : $("#message").val()
+		}, function(data, status) {
+			window.location.href = "/";
+		});
+	}
+	
+	</script>
 </body>
 </html>
